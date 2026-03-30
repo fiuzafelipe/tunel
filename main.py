@@ -9,9 +9,14 @@ from dateutil.relativedelta import relativedelta
 from passlib.hash import bcrypt
 
 app = FastAPI()
+
+# ✅ GARANTE PASTAS
+os.makedirs("static", exist_ok=True)
+os.makedirs("templates", exist_ok=True)
+
 templates = Jinja2Templates(directory="templates")
 
-app.mount("/static", StaticFiles(directory="Static"), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 DB = "database.db"
 LOG = "logs.txt"
@@ -90,7 +95,6 @@ def init_db():
 
     user = "Felipe Fiuza"
 
-    # 🔐 HASH FIXO
     senha = "$2b$12$EqprvY0ApnwY/bbIINSsFe.9eXay7uxUK45Ylq767PtD2iFbG8YNO"
 
     c.execute("SELECT * FROM usuarios WHERE user=?", (user,))
@@ -216,7 +220,8 @@ def dashboard(request: Request, auth: str = Cookie(None)):
 # ========================= CLIENTES
 @app.post("/add_cliente")
 def add_cliente(cnpj: str = Form(...), razao: str = Form(...), auth: str = Cookie(None)):
-    if not check_auth(auth):
+    user = check_auth(auth)
+    if not user:
         return RedirectResponse("/login")
 
     conn = get_conn()
@@ -224,21 +229,18 @@ def add_cliente(cnpj: str = Form(...), razao: str = Form(...), auth: str = Cooki
 
     cnpj_limpo = limpar_cnpj(cnpj)
 
-    # 🔒 VALIDAR CNPJ DUPLICADO
     c.execute("SELECT 1 FROM clientes WHERE cnpj=?", (cnpj_limpo,))
     if c.fetchone():
         conn.close()
-        write_log(auth, f"Tentativa CNPJ duplicado {cnpj}")
+        write_log(user, f"Tentativa CNPJ duplicado {cnpj}")
         return RedirectResponse("/?msg=cnpj_existente", 303)
 
-    # 🔒 VALIDAR RAZÃO DUPLICADA
     c.execute("SELECT 1 FROM clientes WHERE LOWER(razao)=LOWER(?)", (razao,))
     if c.fetchone():
         conn.close()
-        write_log(auth, f"Tentativa razão duplicada {razao}")
+        write_log(user, f"Tentativa razão duplicada {razao}")
         return RedirectResponse("/?msg=razao_existente", 303)
 
-    # ✔ fluxo original mantido
     hoje = datetime.now()
     validade = hoje + relativedelta(months=1)
 
@@ -250,7 +252,7 @@ def add_cliente(cnpj: str = Form(...), razao: str = Form(...), auth: str = Cooki
     conn.commit()
     conn.close()
 
-    write_log(auth, f"Cliente ativo {cnpj}")
+    write_log(user, f"Cliente ativo {cnpj}")
     return RedirectResponse("/?msg=cliente_criado", 303)
 
 # ========================= GERAR LICENÇA
