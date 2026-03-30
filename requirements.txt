@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+jinja2
+python-dateutil
+passlib[bcrypt]
+bcrypt==3.2.2
