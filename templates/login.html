@@ -91,18 +91,20 @@ Entrar
 
 <!-- 🔥 MENSAGENS DINÂMICAS -->
 
-{% if msg == "erro" %}
+{% if msg and msg == "erro" %}
 <div class="toast-login error">Usuário ou senha incorreta.</div>
 {% endif %}
 
-{% if msg == "logout" %}
+{% if msg and msg == "logout" %}
 <div class="toast-login success">Logout realizado com sucesso!</div>
 {% endif %}
 
-{% if msg == "login_ok" %}
+{% if msg and msg == "login_ok" %}
 <div class="toast-login success">Login realizado com sucesso!</div>
 <script>
-setTimeout(()=>window.location.href="/",1200);
+setTimeout(function(){
+    window.location.href="/";
+},1200);
 </script>
 {% endif %}
 
