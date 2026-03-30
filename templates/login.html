@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+body {
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background: linear-gradient(135deg,#e0f7fa,#ffffff);
+    cursor: url('/static/cursor.cur'), auto;
+}
+
+/* CARD */
+.card {
+    width:360px;
+    padding:30px;
+    border-radius:15px;
+    box-shadow:0 15px 30px rgba(0,0,0,0.2);
+}
+
+/* LOGO */
+@keyframes zoomGlow {
+    0% { transform:scale(1); box-shadow:0 0 0px transparent; }
+    50% { transform:scale(1.05); box-shadow:0 0 20px rgba(0,123,255,0.3); }
+    100% { transform:scale(1); }
+}
+
+.logo {
+    display:block;
+    margin:0 auto 15px;
+    max-height:110px;
+    animation: zoomGlow 5s infinite;
+}
+
+/* 🔥 TOAST */
+.toast-login {
+    position: fixed;
+    top: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    z-index: 9999;
+    animation: fadeInOut 2.5s ease forwards;
+}
+
+.success { background:#198754; color:white; }
+.error { background:#dc3545; color:white; }
+
+@keyframes fadeInOut {
+    0% { opacity:0; transform:translate(-50%,-20px); }
+    10% { opacity:1; transform:translate(-50%,0); }
+    90% { opacity:1; }
+    100% { opacity:0; transform:translate(-50%,-20px); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<div class="text-center">
+<img src="/static/logo_login.png" class="logo">
+<h4 class="fw-bold">Acesso ao Sistema</h4>
+</div>
+
+<form method="post" action="/login" onsubmit="loadingLogin()">
+
+<input name="user" class="form-control mb-3" placeholder="Usuário" required>
+
+<div class="input-group mb-3">
+<input type="password" name="senha" id="senha" class="form-control" placeholder="Senha" required>
+<button type="button" class="btn btn-outline-secondary" onclick="toggleSenha()">👁</button>
+</div>
+
+<button id="btnLogin" class="btn btn-info w-100 text-white fw-bold">
+Entrar
+</button>
+
+</form>
+
+</div>
+
+<!-- 🔥 MENSAGENS DINÂMICAS -->
+{% set msg = request.query_params.get("msg") %}
+
+{% if msg == "erro" %}
+<div class="toast-login error">Usuário ou senha incorreta.</div>
+{% endif %}
+
+{% if msg == "logout" %}
+<div class="toast-login success">Logout realizado com sucesso!</div>
+{% endif %}
+
+{% if msg == "login_ok" %}
+<div class="toast-login success">Login realizado com sucesso!</div>
+<script>
+setTimeout(()=>window.location.href="/",1200);
+</script>
+{% endif %}
+
+<script>
+function toggleSenha(){
+let s=document.getElementById("senha");
+s.type = s.type==="password"?"text":"password";
+}
+
+function loadingLogin(){
+let btn=document.getElementById("btnLogin");
+btn.innerHTML=`<span class="spinner-border spinner-border-sm"></span> Entrando...`;
+btn.disabled=true;
+}
+</script>
+
+</body>
+</html>
