@@ -284,6 +284,7 @@ e.target.style.display="none";
 </div>
 
 <img src="/static/logo_padrao.png" class="logo-dashboard">
+<img src="/static/logo_login.png" style="display:none;"> <!-- adicionado logo_login -->
 
 <input type="text" id="busca" class="form-control mb-2" placeholder="Buscar cliente..." title="Pesquisar clientes">
 
@@ -415,7 +416,8 @@ usuario_existente:"Usuário já existe!",
 usuario_removido:"Usuário removido!",
 licenca_gerada:"Licença gerada com sucesso!",
 cnpj_existente:"CNPJ já cadastrado!",
-razao_existente:"Razão social já cadastrada!"
+razao_existente:"Razão social já cadastrada!",
+error_login:"Erro ao realizar ação!"  // adicionado error.mp3 referência
 };
 
 let url=new URL(window.location.href);
@@ -486,6 +488,7 @@ if(s){ s.currentTime=0; s.play(); }
 
 <audio id="clickSound" src="/static/click.mp3"></audio>
 <audio id="successSound" src="/static/success.mp3"></audio>
+<audio id="errorSound" src="/static/error.mp3"></audio> <!-- adicionado error.mp3 -->
 
 </body>
 </html>
