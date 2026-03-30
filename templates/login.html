@@ -4,121 +4,145 @@
 <meta charset="UTF-8">
 <title>Login</title>
 
+<link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
-body {
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background: linear-gradient(135deg,#e0f7fa,#ffffff);
-    cursor: url('/static/cursor.cur'), auto;
+body { 
+    height: 100vh; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    background:#eef2f5; 
+    cursor: url('/static/cursor.cur'), auto; 
 }
-
-/* CARD */
-.card {
+.login-box {
+    background:white; 
+    padding:30px; 
+    border-radius:12px; 
+    box-shadow:0 10px 40px rgba(0,0,0,0.2);
     width:360px;
-    padding:30px;
-    border-radius:15px;
-    box-shadow:0 15px 30px rgba(0,0,0,0.2);
+    text-align:center;
+    animation: zoomIn 0.5s ease;
 }
-
-/* LOGO */
-@keyframes zoomGlow {
-    0% { transform:scale(1); box-shadow:0 0 0px transparent; }
-    50% { transform:scale(1.05); box-shadow:0 0 20px rgba(0,123,255,0.3); }
-    100% { transform:scale(1); }
+@keyframes zoomIn {
+from { transform:scale(0.8); opacity:0;}
+to { transform:scale(1); opacity:1;}
 }
-
-.logo {
-    display:block;
-    margin:0 auto 15px;
-    max-height:110px;
-    animation: zoomGlow 5s infinite;
+.login-box img {
+    max-width:150px;
+    margin-bottom:20px;
 }
-
-/* 🔥 TOAST */
-.toast-login {
+.form-control:focus {
+    box-shadow:0 0 0 2px rgba(13,110,253,.25);
+    border-color:#0d6efd;
+}
+.btn { 
+    transition: all 0.2s ease;
+    padding:6px 12px;
+    white-space: nowrap !important;
+    display:inline-flex !important;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    flex-wrap: nowrap !important;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.15); }
+.btn:active { transform: scale(0.96); }
+.center-msg {
     position: fixed;
-    top: 25px;
+    top: 45%;
     left: 50%;
-    transform: translateX(-50%);
-    padding: 12px 25px;
-    border-radius: 8px;
+    transform: translate(-50%,-50%);
+    background: white;
+    padding: 20px 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    border-left: 6px solid #dc3545;
     font-weight: bold;
     z-index: 9999;
-    animation: fadeInOut 2.5s ease forwards;
+    animation: zoomFade 2s forwards;
+    backdrop-filter: blur(6px);
 }
-
-.success { background:#198754; color:white; }
-.error { background:#dc3545; color:white; }
-
-@keyframes fadeInOut {
-    0% { opacity:0; transform:translate(-50%,-20px); }
-    10% { opacity:1; transform:translate(-50%,0); }
-    90% { opacity:1; }
-    100% { opacity:0; transform:translate(-50%,-20px); }
+@keyframes zoomFade {
+    0% { opacity:0; transform:translate(-50%,-60%) scale(0.9);}
+    10% { opacity:1; transform:translate(-50%,-50%) scale(1);}
+    90% { opacity:1;}
+    100% { opacity:0; transform:translate(-50%,-60%) scale(0.9);}
 }
 </style>
 </head>
 
 <body>
 
-<div class="card">
-
-<div class="text-center">
-<img src="/static/logo_login.png" class="logo">
-<h4 class="fw-bold">Acesso ao Sistema</h4>
+<div class="login-box">
+    <img src="/static/logo_login.png" alt="Logo Login">
+    <form method="POST" action="/login" onsubmit="loadingBtn(this,'Entrando...')">
+        <div class="mb-3">
+            <input type="text" name="user" class="form-control" placeholder="Usuário" required autofocus>
+        </div>
+        <div class="mb-3">
+            <input type="password" name="senha" class="form-control" placeholder="Senha" required>
+        </div>
+        <button class="btn btn-primary w-100" type="submit">Entrar</button>
+    </form>
 </div>
 
-<form method="post" action="/login" onsubmit="loadingLogin()">
-
-<input name="user" class="form-control mb-3" placeholder="Usuário" required>
-
-<div class="input-group mb-3">
-<input type="password" name="senha" id="senha" class="form-control" placeholder="Senha" required>
-<button type="button" class="btn btn-outline-secondary" onclick="toggleSenha()">👁</button>
-</div>
-
-<button id="btnLogin" class="btn btn-info w-100 text-white fw-bold">
-Entrar
-</button>
-
-</form>
-
-</div>
-
-<!-- 🔥 MENSAGENS DINÂMICAS -->
-
-{% if msg and msg == "erro" %}
-<div class="toast-login error">Usuário ou senha incorreta.</div>
+{% if msg %}
+<div class="center-msg" id="msgBox">Carregando...</div>
 {% endif %}
 
-{% if msg and msg == "logout" %}
-<div class="toast-login success">Logout realizado com sucesso!</div>
-{% endif %}
-
-{% if msg and msg == "login_ok" %}
-<div class="toast-login success">Login realizado com sucesso!</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-setTimeout(function(){
-    window.location.href="/";
-},1200);
+function loadingBtn(form,msg){
+    let btn=form.querySelector("button");
+    if(btn.disabled) return;
+    btn.innerHTML=`<span class="spinner-border spinner-border-sm"></span> ${msg}`;
+    btn.disabled=true;
+}
+
+const mensagens = {
+login_ok:"Login realizado com sucesso!",
+erro:"Usuário ou senha incorretos!",
+logout:"Logout realizado!"
+};
+
+let url=new URL(window.location.href);
+let msg=url.searchParams.get("msg");
+
+if(msg && mensagens[msg]){
+    let msgBox=document.getElementById("msgBox");
+    if(msgBox) msgBox.innerText=mensagens[msg];
+    let s=document.getElementById("errorSound");
+    if(msg==="erro" && s) s.play();
+}
 </script>
-{% endif %}
+
+<audio id="clickSound" src="/static/click.mp3"></audio>
+<audio id="successSound" src="/static/success.mp3"></audio>
+<audio id="errorSound" src="/static/error.mp3"></audio>
 
 <script>
-function toggleSenha(){
-let s=document.getElementById("senha");
-s.type = s.type==="password"?"text":"password";
-}
-
-function loadingLogin(){
-let btn=document.getElementById("btnLogin");
-btn.innerHTML=`<span class="spinner-border spinner-border-sm"></span> Entrando...`;
-btn.disabled=true;
-}
+document.addEventListener("click", function(e){
+    if(e.target.closest("button, a, input, select, label")) return;
+    let efeito=document.createElement("div");
+    efeito.style.position="fixed";
+    efeito.style.left=e.clientX+"px";
+    efeito.style.top=e.clientY+"px";
+    efeito.style.width="14px";
+    efeito.style.height="14px";
+    efeito.style.borderRadius="50%";
+    efeito.style.background="rgba(0,123,255,0.35)";
+    efeito.style.transform="translate(-50%,-50%)";
+    efeito.style.pointerEvents="none";
+    efeito.style.animation="clickEffect 0.5s ease-out";
+    efeito.style.zIndex="0";
+    document.body.appendChild(efeito);
+    setTimeout(()=>efeito.remove(),500);
+    let s=document.getElementById("clickSound");
+    if(s){ s.currentTime=0; s.play(); }
+});
 </script>
 
 </body>
