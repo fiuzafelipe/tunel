@@ -1,6 +1,8 @@
 fastapi
 uvicorn
 jinja2
+python-multipart
 python-dateutil
 passlib[bcrypt]
+python-dateutil
 bcrypt==3.2.2
