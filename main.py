@@ -9,7 +9,7 @@ from dateutil.relativedelta import relativedelta
 from passlib.hash import bcrypt
 
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="Templates")
 
 app.mount("/static", StaticFiles(directory="Static"), name="static")
 
