@@ -148,7 +148,12 @@ def get_role(user):
 # ========================= LOGIN
 @app.get("/login", response_class=HTMLResponse)
 def login_page(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    msg = request.query_params.get("msg")
+
+    return templates.TemplateResponse("login.html", {
+        "request": request,
+        "msg": msg
+    })
 
 @app.post("/login")
 def login(user: str = Form(...), senha: str = Form(...)):
@@ -205,6 +210,8 @@ def dashboard(request: Request, auth: str = Cookie(None)):
         elif status == "bloqueado": bloqueados += 1
         elif status == "deletado": deletados += 1
 
+    msg = request.query_params.get("msg")
+
     return templates.TemplateResponse("index.html", {
         "request": request,
         "clientes": clientes,
@@ -214,7 +221,8 @@ def dashboard(request: Request, auth: str = Cookie(None)):
         "ativos": ativos,
         "bloqueados": bloqueados,
         "deletados": deletados,
-        "logs": read_logs()
+        "logs": read_logs(),
+        "msg": msg
     })
 
 # ========================= CLIENTES
