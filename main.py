@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Form, Cookie
-from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse, JSONResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
@@ -10,19 +10,22 @@ from passlib.hash import bcrypt
 
 app = FastAPI()
 
-# ✅ GARANTE PASTAS
-os.makedirs("static", exist_ok=True)
-os.makedirs("templates", exist_ok=True)
+# ========================= PASTAS
+# Diretório gravável pelo Render
+DATA_DIR = "/opt/render/data"
+os.makedirs(DATA_DIR, exist_ok=True)
 
-templates = Jinja2Templates(directory="templates")
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-DB = "database.db"
-LOG = "logs.txt"
-LIC_DIR = "Licencas"
-
+DB = os.path.join(DATA_DIR, "database.db")
+LOG = os.path.join(DATA_DIR, "logs.txt")
+LIC_DIR = os.path.join(DATA_DIR, "Licencas")
 os.makedirs(LIC_DIR, exist_ok=True)
+
+# Diretórios fixos do projeto (read-only)
+TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
+STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
+
+templates = Jinja2Templates(directory=TEMPLATES_DIR)
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 SECRET_KEY = os.getenv("SECRET_KEY", "DEFAULT_INSECURE_KEY").encode()
 
@@ -93,8 +96,8 @@ def init_db():
     )
     """)
 
+    # Usuário padrão
     user = "Felipe Fiuza"
-
     senha = "$2b$12$EqprvY0ApnwY/bbIINSsFe.9eXay7uxUK45Ylq767PtD2iFbG8YNO"
 
     c.execute("SELECT * FROM usuarios WHERE user=?", (user,))
@@ -119,10 +122,8 @@ def limpar_cnpj(cnpj):
 
 def write_log(usuario, msg):
     data = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-
     if os.path.exists(LOG) and os.path.getsize(LOG) > 500000:
         os.remove(LOG)
-
     with open(LOG, "a", encoding="utf-8") as f:
         f.write(f"{data}|{usuario}|{msg}\n")
 
@@ -149,7 +150,6 @@ def get_role(user):
 @app.get("/login", response_class=HTMLResponse)
 def login_page(request: Request):
     msg = request.query_params.get("msg")
-
     return templates.TemplateResponse("login.html", {
         "request": request,
         "msg": msg
@@ -159,7 +159,6 @@ def login_page(request: Request):
 def login(user: str = Form(...), senha: str = Form(...)):
     conn = get_conn()
     c = conn.cursor()
-
     c.execute("SELECT senha FROM usuarios WHERE user=?", (user,))
     r = c.fetchone()
     conn.close()
