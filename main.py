@@ -158,7 +158,7 @@ def login(user: str = Form(...), senha: str = Form(...)):
     if r and verify_senha(senha, r[0]):
         cookie = criar_cookie(user)
         resp = RedirectResponse("/?msg=login_ok", 303)
-        resp.set_cookie("auth", cookie, httponly=True, samesite="lax", secure=False)
+        resp.set_cookie("auth", cookie, httponly=True, samesite="lax", secure=True)
         write_log(user, "Login")
         return resp
 
